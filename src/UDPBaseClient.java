@@ -8,26 +8,23 @@ public class UDPBaseClient {
 
     public static void main(String[] args) throws IOException {
 
-        String name = "John";
         Scanner stdIn = new Scanner(System.in);
+        String id = Utility.getRandomString(16);
 
         // Step 1 : Create the socket object for carrying the data.
         DatagramSocket socket = new DatagramSocket();
         InetAddress ip = InetAddress.getLocalHost();
         System.out.println(ip.toString());
-        byte[] nameBytes, ipBytes = null;
+        byte[] nameBytes = null;
         byte[] buffer = null;
 
         socket.connect(ip, 1234);
 
-        nameBytes = name.getBytes();
+        // ID burde kanskje ikke sendes fra klienten
+        nameBytes = id.getBytes();
         DatagramPacket sendName = new DatagramPacket(nameBytes, nameBytes.length);
 
-        ipBytes = ip.toString().split("/")[1].getBytes();
-        DatagramPacket sendIP = new DatagramPacket(ipBytes, ipBytes.length);
-
         socket.send(sendName);
-        socket.send(sendIP);
 
         byte[] receivedBytes = new byte[65535];
 
@@ -48,7 +45,6 @@ public class UDPBaseClient {
 
             // Step 3 : invoke the send call to actually send the data.
             socket.send(sendPacket);
-
 
             // Exit the client if the user types "exit"
             if(input.trim().toLowerCase().equals("exit")) {

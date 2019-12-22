@@ -2,40 +2,65 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
-public class UDPBaseServer {
+public class UDPBaseServer extends Thread {
 
-    public static void main(String[] args) throws IOException {
+    private InetAddress ip;
+    private int port;
+    DatagramSocket socket;
+    byte[] receivedBytes = new byte[65535];
+    DatagramPacket receivedPacket;
+    boolean running = false;
 
-        InetAddress ip = InetAddress.getLocalHost();
-        int port = 1234;
+    public UDPBaseServer(int port) throws IOException {
         // Step 1 : Create a socket to listen at port 1234
-        DatagramSocket socket = new DatagramSocket(port, ip);
+        this.ip = InetAddress.getLocalHost();
+        this.port = port;
+        this.socket = new DatagramSocket(port, ip);
         System.out.println("Server created at port: " + port + " with ip address: " + ip);
-        byte[] receivedBytes = new byte[65535];
+        System.out.println("Waiting for client connection...");
+    }
 
-        DatagramPacket receivedPacket = null;
-        while(true) {
-
-            // Step 2 : create a DatgramPacket to receive the data.
+    @Override
+    public void run() {
+        System.out.println("run() started");
+        try {
             receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
-
-            // Step 3 : revieve the data in byte buffer.
             socket.receive(receivedPacket);
             Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
-
             socket.connect(clientConnection.getIp(), clientConnection.getPort());
-            String message = "registered";
+
+            String id = dataToString(receivedBytes);
+            System.out.println("Client id: " + id);
+            String message = "Your id: " + id;
             DatagramPacket sendVerification = new DatagramPacket(message.getBytes(), message.getBytes().length);
             socket.send(sendVerification);
 
-            String receivedString = dataToString(receivedBytes);
-            System.out.println("From client: " + receivedString);
+            receivedBytes = new byte[65535];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            // Exit the server (later, close the thread) when the user sends exit.
-            if(receivedString.trim().toLowerCase().equals("exit")) {
-                System.out.println("Client exitted. Closing connection.");
-                break;
+        while(running) {
+            // Step 2 : create a DatgramPacket to receive the data.
+            receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
+
+            // Step 3 : receive the data in byte buffer.
+            try {
+                socket.receive(receivedPacket);
+                Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
+
+                String receivedString = dataToString(receivedBytes);
+                System.out.println("From client: " + receivedString);
+
+                // Exit the server (later, close the thread) when the user sends exit.
+                if(receivedString.trim().toLowerCase().equals("exit")) {
+                    System.out.println("Client exitted. Closing connection.");
+                    break;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             // Step 4 : clear the buffer after every message.
@@ -43,8 +68,25 @@ public class UDPBaseServer {
         }
     }
 
+    private void clearBuffer(byte[] buffer) {
+        buffer = new byte[65535];
+    }
+
+    private void startServer() {
+        running = true;
+        this.start();
+    }
+
+    private void close() {
+        running = false;
+
+        if(socket.isConnected()) {
+            socket.disconnect();
+        }
+    }
+
     // A utility method to convert the byte array data into a string representation.
-    public static String dataToString(byte[] a) {
+    public String dataToString(byte[] a) {
         if (a == null)
             return null;
         StringBuilder ret = new StringBuilder();
@@ -55,5 +97,14 @@ public class UDPBaseServer {
             i++;
         }
         return ret.toString();
+    }
+
+    public static void main(String[] args) {
+        try {
+            UDPBaseServer server = new UDPBaseServer(1234);
+            server.startServer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
