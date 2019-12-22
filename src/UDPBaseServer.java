@@ -31,11 +31,14 @@ public class UDPBaseServer extends Thread {
             Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
             socket.connect(clientConnection.getIp(), clientConnection.getPort());
 
-            String id = dataToString(receivedBytes);
-            System.out.println("Client id: " + id);
-            String message = "Your id: " + id;
-            DatagramPacket sendVerification = new DatagramPacket(message.getBytes(), message.getBytes().length);
-            socket.send(sendVerification);
+            String request = dataToString(receivedBytes);
+            if(request.trim().toLowerCase().contains("connect")) {
+                String id = Utility.getRandomString(16);
+                System.out.println("Client id: " + id);
+                String message = "Your id: " + id;
+                DatagramPacket sendVerification = new DatagramPacket(message.getBytes(), message.getBytes().length);
+                socket.send(sendVerification);
+            }
 
             receivedBytes = new byte[65535];
         } catch (IOException e) {

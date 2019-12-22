@@ -9,22 +9,22 @@ public class UDPBaseClient {
     public static void main(String[] args) throws IOException {
 
         Scanner stdIn = new Scanner(System.in);
-        String id = Utility.getRandomString(16);
+        String id;
 
         // Step 1 : Create the socket object for carrying the data.
         DatagramSocket socket = new DatagramSocket();
         InetAddress ip = InetAddress.getLocalHost();
         System.out.println(ip.toString());
-        byte[] nameBytes = null;
+        byte[] requestBytes = null;
         byte[] buffer = null;
 
         socket.connect(ip, 1234);
 
         // ID burde kanskje ikke sendes fra klienten
-        nameBytes = id.getBytes();
-        DatagramPacket sendName = new DatagramPacket(nameBytes, nameBytes.length);
+        requestBytes = "connect".getBytes();
+        DatagramPacket sendID = new DatagramPacket(requestBytes, requestBytes.length);
 
-        socket.send(sendName);
+        socket.send(sendID);
 
         byte[] receivedBytes = new byte[65535];
 
