@@ -1,3 +1,8 @@
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+
 public class Utility {
 
     public static String getRandomString(int i) {
@@ -32,5 +37,17 @@ public class Utility {
             i++;
         }
         return ret.toString();
+    }
+
+    public static DatagramPacket createPacket(byte[] message) {
+        return new DatagramPacket(message, message.length);
+    }
+
+    public static DatagramPacket createPacket(byte[] message, Connection connection) {
+        return new DatagramPacket(message, message.length, connection.getIp(), connection.getPort());
+    }
+
+    public static DatagramPacket createPacket(byte[] message, InetAddress ip, int port) {
+        return new DatagramPacket(message, message.length, ip, port);
     }
 }

@@ -15,9 +15,7 @@ public class ClientHandler extends Thread {
         this.socket = socket;
         this.userConnection = connection;
         System.out.println("Client id: " + getName());
-        String message = "Your id: " + getName();
-        DatagramPacket sendVerification = new DatagramPacket(message.getBytes(), message.getBytes().length,
-                connection.getIp(), connection.getPort());
+        DatagramPacket sendVerification = Utility.createPacket(getName().getBytes(), connection);
         socket.send(sendVerification);
     }
 
@@ -29,40 +27,38 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
-        System.out.println("ClientListener thread started");
-        byte[] receiveData = new byte[65535];
-        DatagramPacket receivePacket = null;
+        System.out.println("ClientHandler thread started");
+        byte[] sendData = new byte[65535];
+        DatagramPacket sendPacket = null;
 
+        String message1 = "Hello";
+        String message2 = "darkness";
+        String message3 = "my old friend";
+
+        // The main server should receive the packets, and only be responsible for sending packets to clients
         while(running) {
-            // Step 2 : create a DatgramPacket to receive the data.
-            receivePacket = new DatagramPacket(receiveData, receiveData.length);
-
-            // Step 3 : receive the data in byte buffer.
             try {
-                socket.receive(receivePacket);
-                Connection clientConnection = new Connection(receivePacket.getAddress(), receivePacket.getPort());
+                sendData = message1.getBytes();
+                sendPacket = createPacket(sendData, userConnection);
+                socket.send(sendPacket);
+                sendData = new byte[65535];
 
-                if(first) {
-                    socket.connect(clientConnection.getIp(), clientConnection.getPort());
-                    first = false;
-                }
+                sendData = message2.getBytes();
+                sendPacket = createPacket(sendData, userConnection);
+                socket.send(sendPacket);
+                sendData = new byte[65535];
 
-                String message = new String(receivePacket.getData());
-                System.out.println("From " + super.getName() + ": " + message);
+                sendData = message3.getBytes();
+                sendPacket = createPacket(sendData, userConnection);
+                sendData = new byte[65535];
 
-                // Exit the server (later, close the thread) when the user sends exit.
-                if(message.trim().toLowerCase().equals("exit")) {
-                    System.out.println("Client exitted. Closing connection.");
-                    running = false;
-                    socket.disconnect();
-                    break;
-                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            // Step 4 : clear the buffer after every message.
-            receiveData = new byte[65535];
         }
+    }
+
+    public DatagramPacket createPacket(byte[] message, Connection connection) {
+        return new DatagramPacket(message, message.length, connection.getIp(), connection.getPort());
     }
 }

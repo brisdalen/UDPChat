@@ -45,7 +45,7 @@ public class UDPBaseServer extends Thread {
                     clientListeners.put(id, new ClientHandler(id, serverSocket, clientConnection));
                     clientListeners.get(id).start();
 
-                    //serverSocket.disconnect();
+
                 }
 
                 receivedBytes = new byte[65535];
