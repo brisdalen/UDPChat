@@ -27,11 +27,12 @@ public class ClientReader extends Thread {
 
     @Override
     public void run() {
-        System.out.println("[ClientReader]run()");
+        //System.out.println("[ClientReader]run()");
         while(running) {
             String input = stdIn.nextLine();
-            System.out.println("[ClientReader]input: " + input);
-            buffer = input.getBytes();
+            String message = getName() + ":" + input;
+            //System.out.println("[ClientReader]input: " + input);
+            buffer = message.getBytes();
             sendPacket = Utility.createPacket(buffer, parentConnection);
             try {
                 socket.send(sendPacket);

@@ -25,36 +25,20 @@ public class ClientHandler extends Thread {
         super.start();
     }
 
+    public synchronized void stopThread() {
+        running = false;
+        System.out.println(getName() + " stopped.");
+    }
+
     @Override
     public void run() {
         System.out.println("ClientHandler thread started");
         byte[] sendData = new byte[65535];
         DatagramPacket sendPacket = null;
 
-        String message1 = "Hello";
-        String message2 = "darkness";
-        String message3 = "my old friend";
-
         // The main server should receive the packets, and only be responsible for sending packets to clients
         while(running) {
-            try {
-                sendData = message1.getBytes();
-                sendPacket = createPacket(sendData, userConnection);
-                socket.send(sendPacket);
-                sendData = new byte[65535];
 
-                sendData = message2.getBytes();
-                sendPacket = createPacket(sendData, userConnection);
-                socket.send(sendPacket);
-                sendData = new byte[65535];
-
-                sendData = message3.getBytes();
-                sendPacket = createPacket(sendData, userConnection);
-                sendData = new byte[65535];
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

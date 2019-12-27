@@ -26,14 +26,17 @@ public class UDPBaseServer extends Thread {
 
     @Override
     public void run() {
-        System.out.println("run() started");
+        //System.out.println("[UDPBaseServer]run() started");
         while (running) {
             try {
                 receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
                 serverSocket.receive(receivedPacket);
 
-                String request = new String(receivedBytes);
-                if (request.trim().toLowerCase().contains("connect")) {
+                String request = Utility.dataToString(receivedBytes);
+                String[] requestParts = request.split(":");
+                System.out.println("[UDPBaseServer]From client: " + request);
+
+                if(request.trim().toLowerCase().equals("connect")) {
                     Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
                     String id = Utility.getRandomString(16);
 
@@ -44,8 +47,15 @@ public class UDPBaseServer extends Thread {
 
                     clientListeners.put(id, new ClientHandler(id, serverSocket, clientConnection));
                     clientListeners.get(id).start();
+                }
 
-
+                if(requestParts.length > 1) {
+                    if (requestParts[1].trim().toLowerCase().equals("exit")) {
+                        String clientToPop = requestParts[0];
+                        System.out.println(clientToPop);
+                        clientListeners.get(clientToPop).stopThread();
+                        clientListeners.remove(clientToPop);
+                    }
                 }
 
                 receivedBytes = new byte[65535];
