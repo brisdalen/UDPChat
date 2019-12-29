@@ -22,7 +22,7 @@ public class UDPBaseClient {
     public UDPBaseClient() throws IOException {
         stdIn = new Scanner(System.in);
         socket = new DatagramSocket();
-        serverIP = InetAddress.getLocalHost();
+        serverIP = InetAddress.getByName("10.0.0.111");
         clientConnection = new Connection(serverIP, 1234);
 
         requestBytes = "connect".getBytes();
