@@ -20,8 +20,8 @@ public class UDPBaseServer extends Thread {
         this.port = port;
         serverSocket = new DatagramSocket(port, ip);
         clientListeners = new HashMap<>();
-        System.out.println("Server created at port: " + port + " with ip address: " + ip);
-        System.out.println("Waiting for client connection...");
+        System.out.println("[UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
+        System.out.println("[UDPBaseServer]Waiting for client connection...");
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UDPBaseServer extends Thread {
                 if(requestParts.length > 1) {
                     if (requestParts[1].trim().toLowerCase().equals("exit")) {
                         String clientToPop = requestParts[0];
-                        System.out.println(clientToPop);
+                        System.out.println("[UDPBaseServer]" + clientToPop);
                         clientListeners.get(clientToPop).stopThread();
                         clientListeners.remove(clientToPop);
                     }

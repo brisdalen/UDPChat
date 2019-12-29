@@ -14,7 +14,7 @@ public class ClientHandler extends Thread {
         super(name);
         this.socket = socket;
         this.userConnection = connection;
-        System.out.println("Client id: " + getName());
+        System.out.println("[ClientHandler]Client id: " + getName());
         DatagramPacket sendVerification = Utility.createPacket(getName().getBytes(), connection);
         socket.send(sendVerification);
     }
@@ -32,7 +32,7 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
-        System.out.println("ClientHandler thread started");
+        System.out.println("[ClientHandler]ClientHandler thread started");
         byte[] sendData = new byte[65535];
         DatagramPacket sendPacket = null;
 

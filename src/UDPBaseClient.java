@@ -34,7 +34,7 @@ public class UDPBaseClient {
         socket.receive(receivedPacket);
 
         String receivedString = Utility.dataToString(receivedBytes);
-        System.out.println("From server: " + receivedString);
+        System.out.println("[UDPBaseClient]From server: " + receivedString);
         id = receivedString;
 
         ClientReader clientReader = new ClientReader(id, stdIn, socket, clientConnection);
