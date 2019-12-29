@@ -8,7 +8,6 @@ public class ClientHandler extends Thread {
     DatagramSocket socket;
     Connection userConnection;
     private boolean running = false;
-    private boolean first = true;
 
     public ClientHandler(String name, DatagramSocket socket, Connection connection) throws IOException {
         super(name);
@@ -17,6 +16,17 @@ public class ClientHandler extends Thread {
         System.out.println("[ClientHandler]Client id: " + getName());
         DatagramPacket sendVerification = Utility.createPacket(getName().getBytes(), connection);
         socket.send(sendVerification);
+    }
+
+    public void sendPacket(String message) {
+        //System.out.println("[ClientHandler]sendPacket(): " + message);
+        DatagramPacket sendMessage = Utility.createPacket(message.getBytes(), userConnection);
+        try {
+            socket.send(sendMessage);
+            System.out.println("[ClientHandler]packet sent to ip: " + sendMessage.getAddress() + " port: " + sendMessage.getPort());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -36,7 +46,7 @@ public class ClientHandler extends Thread {
         byte[] sendData = new byte[65535];
         DatagramPacket sendPacket = null;
 
-        // The main server should receive the packets, and only be responsible for sending packets to clients
+        // The main server should receive the packets, and the handler should only be responsible for sending packets to clients
         while(running) {
 
         }

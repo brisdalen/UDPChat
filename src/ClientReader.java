@@ -5,17 +5,19 @@ import java.util.Scanner;
 
 public class ClientReader extends Thread {
 
-    Scanner stdIn;
+    UDPBaseClient client;
     DatagramSocket socket;
+    Scanner stdIn;
     private boolean running;
     byte[] buffer = new byte[65535];
     DatagramPacket sendPacket;
     Connection parentConnection;
 
-    public ClientReader(String name, Scanner scanner, DatagramSocket socket, Connection connection) {
+    public ClientReader(String name, UDPBaseClient client, DatagramSocket socket, Scanner scanner, Connection connection) {
         super(name);
-        this.stdIn = scanner;
+        this.client = client;
         this.socket = socket;
+        this.stdIn = scanner;
         this.parentConnection = connection;
     }
 
@@ -23,6 +25,12 @@ public class ClientReader extends Thread {
     public synchronized void start() {
         running = true;
         super.start();
+    }
+
+    public synchronized void stopClient() {
+        System.out.println("ClientReader]stopping client...");
+        client.clientListener.closeListener();
+        running = false;
     }
 
     @Override
@@ -38,11 +46,13 @@ public class ClientReader extends Thread {
                 socket.send(sendPacket);
                 // Exit the client if the user types "exit"
                 if(input.trim().toLowerCase().equals("exit")) {
-                    break;
+                    stopClient();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+
+        System.out.println("ClientReader]client stopped.");
     }
 }

@@ -8,6 +8,7 @@ public class Connection {
     public Connection(InetAddress ip, int port) {
         this.ip = ip;
         this.port = port;
+        System.out.println("[Connection]new connection from: " + ip + "/" + port);
     }
 
     public InetAddress getIp() {
