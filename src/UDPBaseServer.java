@@ -3,23 +3,34 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.HashMap;
-
+import java.util.Scanner;
+//TODO: Legg til sjekk for time-outs
+//TODO: Akkurat nå venter server på et siste svar fra en client før den stenges; tenke på hvordan alt skal avsluttes
 public class UDPBaseServer extends Thread {
+
+    private Scanner stdIn;
+
     private InetAddress ip;
     private int port;
-    DatagramSocket serverSocket;
-    byte[] receivedBytes = new byte[65535];
-    DatagramPacket receivedPacket;
-    boolean running = false;
+    private DatagramSocket serverSocket;
+    private byte[] receivedBytes = new byte[65535];
+    private DatagramPacket receivedPacket;
+    private boolean running = false;
 
-    HashMap<String, ClientHandler> clientListeners;
+    private HashMap<String, ClientHandler> clientListeners;
 
     public UDPBaseServer(int port) throws IOException {
+        stdIn = new Scanner(System.in);
         // Step 1 : Create a socket to listen at port 1234
-        this.ip = InetAddress.getLocalHost();
+        this.ip = InetAddress.getByName("0.0.0.0");
+        System.out.println(ip);
         this.port = port;
         serverSocket = new DatagramSocket(port, ip);
         clientListeners = new HashMap<>();
+
+        ServerReader serverReader = new ServerReader("Server", this, serverSocket, stdIn, clientListeners);
+        serverReader.start();
+
         System.out.println("[UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
         System.out.println("[UDPBaseServer]Waiting for client connection...");
     }
@@ -29,16 +40,16 @@ public class UDPBaseServer extends Thread {
         //System.out.println("[UDPBaseServer]run() started");
         while (running) {
             try {
+                // The Server's "receiver"
                 receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
                 serverSocket.receive(receivedPacket);
-
                 String request = Utility.dataToString(receivedBytes);
                 String[] requestParts = request.split(":");
                 System.out.println("[UDPBaseServer]From client: " + request);
 
                 if(request.trim().toLowerCase().equals("connect")) {
                     Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
-                    String id = Utility.getRandomString(16);
+                    String id = Utility.getRandomString(4);
 
                     // Generate a new id if the current id already exists in the HashMap (very unlikely)
                     while(clientListeners.containsKey(id)) {
@@ -46,13 +57,13 @@ public class UDPBaseServer extends Thread {
                     }
 
                     clientListeners.put(id, new ClientHandler(id, serverSocket, clientConnection));
-                    clientListeners.get(id).start();
+                    //clientListeners.get(id).start();
                 }
 
                 if(requestParts.length > 1) {
+                    // Stop and remove the handler responsible for the client exiting
                     if (requestParts[1].trim().toLowerCase().equals("exit")) {
                         String clientToPop = requestParts[0];
-                        System.out.println("[UDPBaseServer]" + clientToPop);
                         clientListeners.get(clientToPop).stopThread();
                         clientListeners.remove(clientToPop);
                     }
@@ -63,6 +74,8 @@ public class UDPBaseServer extends Thread {
                 e.printStackTrace();
             }
         }
+
+        System.out.println("[UDPBaseServer]server stopped.");
     }
 
     private void startServer() {
@@ -70,7 +83,8 @@ public class UDPBaseServer extends Thread {
         this.start();
     }
 
-    private void close() {
+    protected void stopServer() {
+        System.out.println("[UDPBaseServer]stopping server...");
         running = false;
     }
 
