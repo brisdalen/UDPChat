@@ -3,7 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Scanner;
-
+//TODO: Sende beskjed til alle connected clients
 public class ServerReader extends Thread {
 
     Scanner stdIn;
