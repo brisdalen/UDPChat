@@ -1,7 +1,7 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-
+//TODO: Akkurat nå venter listener på et siste svar fra server før den stenges; tenke på hvordan alt skal avsluttes
 public class ClientListener extends Thread {
 
     private DatagramSocket clientSocket;
@@ -33,6 +33,7 @@ public class ClientListener extends Thread {
                 receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
                 clientSocket.receive(receivedPacket);
                 String message = Utility.dataToString(receivedBytes);
+                // Endre 2 strings, på samme måte som ServerReader
                 String[] messageParts = message.split(":");
                 System.out.println("[ClientListener]From server: " + message);
 

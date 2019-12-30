@@ -17,6 +17,7 @@ public class UDPBaseServer extends Thread {
     private DatagramPacket receivedPacket;
     private boolean running = false;
 
+    ServerReader serverReader;
     private HashMap<String, ClientHandler> clientListeners;
 
     public UDPBaseServer(int port) throws IOException {
@@ -27,12 +28,11 @@ public class UDPBaseServer extends Thread {
         this.port = port;
         serverSocket = new DatagramSocket(port, ip);
         clientListeners = new HashMap<>();
-
-        ServerReader serverReader = new ServerReader("Server", this, serverSocket, stdIn, clientListeners);
-        serverReader.start();
-
         System.out.println("[UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
         System.out.println("[UDPBaseServer]Waiting for client connection...");
+
+        serverReader = new ServerReader("Server", this, serverSocket, stdIn, clientListeners);
+        serverReader.start();
     }
 
     @Override
@@ -85,7 +85,9 @@ public class UDPBaseServer extends Thread {
 
     protected void stopServer() {
         System.out.println("[UDPBaseServer]stopping server...");
+        serverReader.sendMessageToAllUsers("Server is closing...");
         running = false;
+        serverReader.sendMessageToAllUsers("Server is closed.");
     }
 
     public static void main(String[] args) {

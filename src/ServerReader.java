@@ -3,7 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Scanner;
-//TODO: Sende beskjed til alle connected clients
+
 public class ServerReader extends Thread {
 
     Scanner stdIn;
@@ -42,23 +42,47 @@ public class ServerReader extends Thread {
         }
     }
 
+    public synchronized void sendMessageToAllUsers(String message) {
+        if(!clientConnections.isEmpty()) {
+            for (String s : clientConnections.keySet()) {
+                sendMessageToUser(s, message);
+            }
+        } else {
+            System.out.println("[ServerReader]no users connected");
+        }
+    }
+
     @Override
     public void run() {
         //System.out.println("[ServerReader]run()");
         while(running) {
-            String input = stdIn.nextLine();
-            String[] inputParts = input.split(":");
-            System.out.println("[ServerReader]input: " + input);
+            //TODO: Sjekk om target finnes før man spør etter beskjed
+            System.out.println("Enter target (specific user, $self, or $all):");
+            String target = stdIn.nextLine();
+            System.out.println("Enter message: ");
+            String message = stdIn.nextLine();
+            // [0] = user, [1] = message
+            //String[] inputParts = input.split(":");
+            System.out.println("[ServerReader]input: " + target + ":" + message);
 
             // Shut down the server if the server issues the "stop server" command
-            if(inputParts.length > 1) {
-                sendMessageToUser(inputParts[0], inputParts[1]);
-            } else if(input.trim().toLowerCase().equals("stop server")) {
-                server.stopServer();
-                closeReader();
-            } else {
-                System.out.println("[ServerReader]unknown command");
+            if(target.trim().toLowerCase().equals("$all")) {
+                System.out.println(clientConnections.keySet().toString());
+                sendMessageToAllUsers(message);
             }
+            // Commands issued to the server itself is issued with $self
+            if(target.trim().toLowerCase().equals("$self")) {
+                if(message.trim().toLowerCase().equals("stop server")) {
+                    server.stopServer();
+                    closeReader();
+                }
+            // Otherwise commands are issued to a specific user
+            } else {
+                sendMessageToUser(target, message);
+            }
+            /*else { TODO: Lage liste med kommandoer
+                System.out.println("[ServerReader]unknown command");
+            }*/
         }
 
         System.out.println("[ServerReader]thread stopped.");
