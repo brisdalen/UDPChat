@@ -1,3 +1,5 @@
+package logic;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -22,14 +24,14 @@ public class ClientReader extends CustomThread {
     }
 
     public synchronized void stopClient() {
-        System.out.println("[ClientReader]stopping client...");
+        System.out.println("[logic.ClientReader]stopping client...");
         client.clientListener.stopListener();
         super.stopThread();
     }
 
     @Override
     public void run() {
-        //System.out.println("[ClientReader]run()");
+        //System.out.println("[logic.ClientReader]run()");
         while(running) {
 
             String input = stdIn.nextLine();
@@ -49,7 +51,7 @@ public class ClientReader extends CustomThread {
             }
         }
 
-        System.out.println("[ClientReader]client stopped.");
+        System.out.println("[logic.ClientReader]client stopped.");
     }
 
 }

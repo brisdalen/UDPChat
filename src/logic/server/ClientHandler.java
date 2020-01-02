@@ -1,7 +1,8 @@
+package logic;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.SocketException;
 
 public class ClientHandler extends CustomThread {
 
@@ -13,17 +14,17 @@ public class ClientHandler extends CustomThread {
         super(name);
         this.socket = socket;
         this.userConnection = connection;
-        System.out.println("[ClientHandler]Client id: " + getName());
+        System.out.println("[logic.ClientHandler]Client id: " + getName());
         DatagramPacket sendVerification = Utility.createPacket(getName().getBytes(), connection);
         socket.send(sendVerification);
     }
 
     public void sendPacket(String message) {
-        //System.out.println("[ClientHandler]sendPacket(): " + message);
+        //System.out.println("[logic.ClientHandler]sendPacket(): " + message);
         DatagramPacket sendMessage = Utility.createPacket(message.getBytes(), userConnection);
         try {
             socket.send(sendMessage);
-            System.out.println("[ClientHandler]packet sent to ip: " + sendMessage.getAddress() + " port: " + sendMessage.getPort());
+            System.out.println("[logic.ClientHandler]packet sent to ip: " + sendMessage.getAddress() + " port: " + sendMessage.getPort());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -36,7 +37,7 @@ public class ClientHandler extends CustomThread {
 
     @Override
     public void run() {
-        System.out.println("[ClientHandler]ClientHandler thread started");
+        System.out.println("[logic.ClientHandler]logic.ClientHandler thread started");
         byte[] sendData = new byte[65535];
         DatagramPacket sendPacket = null;
 
