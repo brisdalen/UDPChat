@@ -1,4 +1,7 @@
-package logic;
+package logic.client;
+
+import logic.Connection;
+import logic.Utility;
 
 import java.io.IOException;
 import java.net.*;
@@ -37,7 +40,7 @@ public class UDPBaseClient {
         receivedPacket = Utility.createPacket(receivedBytes);
         socket.receive(receivedPacket);
         String receivedString = Utility.dataToString(receivedBytes);
-        System.out.println("[logic.UDPBaseClient]From server: " + receivedString);
+        System.out.println("[logic.client.UDPBaseClient]From server: " + receivedString);
         id = receivedString;
 
         clientReader = new ClientReader(id, this, socket, stdIn, clientConnection);

@@ -25,32 +25,46 @@ public class ServerUI extends JFrame {
 
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        JTextField target = new JTextField("Target (specific user, $self, or $all)");
-        target.addMouseListener(new MouseAdapter() {
+        JTextField targetField = new JTextField("Target (specific user, $self, or $all)");
+        targetField.setToolTipText("Target (specific user, $self, or $all)");
+        targetField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                target.setText("");
+                targetField.setText("");
             }
         });
-        JTextField message = new JTextField("Message");
-        message.addMouseListener(new MouseAdapter() {
+        JTextField messageField = new JTextField("Message");
+        messageField.setToolTipText("Enter the message here");
+        messageField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                message.setText("");
+                messageField.setText("");
             }
         });
         JButton sendMessage = new JButton("Click to send message");
         sendMessage.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                server.stopServer();
-                System.exit(0);
+                String target = targetField.getText();
+                String message = messageField.getText();
+
+                // TODO: Bytte til kommandoer istedenfor String-sjekking
+                // Sjekker først om det er en $self kommando (og like godt om det er stop server, siden det er den eneste kommandoen som finnes).
+                if(target.equals("$self") && message.equals("stop server")) {
+                    server.stopServer();
+                    System.exit(0);
+                    // Så lenge target ikke er all eller self, så sender vi beskjeden til brukeren "target"
+                } else if(!(target.equals("$all") || target.equals("$self"))) {
+                    server.sendMessageToUser(target, message);
+                } else if(target.equals("$all")) {
+                    server.sendMessageToAllUsers(message);
+                }
             }
         });
         this.getRootPane().setDefaultButton(sendMessage);
 
-        mainPanel.add(target, BorderLayout.NORTH);
-        mainPanel.add(message, BorderLayout.CENTER);
+        mainPanel.add(targetField, BorderLayout.NORTH);
+        mainPanel.add(messageField, BorderLayout.CENTER);
         mainPanel.add(sendMessage, BorderLayout.SOUTH);
 
         this.add(mainPanel);
