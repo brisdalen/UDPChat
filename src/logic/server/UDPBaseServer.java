@@ -1,3 +1,5 @@
+package logic;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -6,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 //TODO: Legg til sjekk for time-outs
-//TODO: Akkurat nå venter server på et siste svar fra en client før den stenges; tenke på hvordan alt skal avsluttes
 public class UDPBaseServer extends CustomThread {
 
     private ArrayList<CustomThread> threads;
@@ -33,8 +34,8 @@ public class UDPBaseServer extends CustomThread {
         this.port = port;
         serverSocket = new DatagramSocket(port, ip);
         clientListeners = new HashMap<>();
-        System.out.println("[UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
-        System.out.println("[UDPBaseServer]Waiting for client connection...");
+        System.out.println("[logic.UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
+        System.out.println("[logic.UDPBaseServer]Waiting for client connection...");
 
         gameUpdater = new GameUpdater();
         threads.add(gameUpdater);
@@ -56,7 +57,7 @@ public class UDPBaseServer extends CustomThread {
 
     @Override
     public void run() {
-        //System.out.println("[UDPBaseServer]run() started");
+        //System.out.println("[logic.UDPBaseServer]run() started");
         while (running) {
             try {
                 // The Server's "receiver"
@@ -64,7 +65,7 @@ public class UDPBaseServer extends CustomThread {
                 serverSocket.receive(receivedPacket);
                 String request = Utility.dataToString(receivedBytes);
                 String[] requestParts = request.split(":");
-                System.out.println("[UDPBaseServer]From client: " + request);
+                System.out.println("[logic.UDPBaseServer]From client: " + request);
 
                 if(request.trim().toLowerCase().equals("connect")) {
                     Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
@@ -94,16 +95,16 @@ public class UDPBaseServer extends CustomThread {
             }
         }
 
-        System.out.println("[UDPBaseServer]server stopped.");
+        System.out.println("[logic.UDPBaseServer]server stopped.");
     }
 
     private void startServer() {
-        System.out.println("[UDPBaseServer]Server starting...");
+        System.out.println("[logic.UDPBaseServer]Server starting...");
         this.start();
     }
 
     protected void stopServer() {
-        System.out.println("[UDPBaseServer]stopping server...");
+        System.out.println("[logic.UDPBaseServer]stopping server...");
         serverReader.sendMessageToAllUsers("Server is closing...");
         running = false;
 

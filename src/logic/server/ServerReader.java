@@ -1,4 +1,5 @@
-import java.io.IOException;
+package logic;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.HashMap;
@@ -23,7 +24,7 @@ public class ServerReader extends CustomThread {
     }
 
     public synchronized void closeReader() {
-        System.out.println("[ServerReader]closing thread...");
+        System.out.println("[logic.ServerReader]closing thread...");
         super.stopThread();
     }
 
@@ -35,10 +36,10 @@ public class ServerReader extends CustomThread {
                     clientConnections.get(user).sendPacket(message);
                 }
             } else {
-                System.out.println("[ServerReader]user " + user + " not found");
+                System.out.println("[logic.ServerReader]user " + user + " not found");
             }
         } else {
-            System.out.println("[ServerReader]no users connected");
+            System.out.println("[logic.ServerReader]no users connected");
         }
     }
 
@@ -48,13 +49,13 @@ public class ServerReader extends CustomThread {
                 sendMessageToUser(s, message);
             }
         } else {
-            System.out.println("[ServerReader]no users connected");
+            System.out.println("[logic.ServerReader]no users connected");
         }
     }
 
     @Override
     public void run() {
-        //System.out.println("[ServerReader]run()");
+        //System.out.println("[logic.ServerReader]run()");
         while(running) {
             //TODO: Sjekk om target finnes før man spør etter beskjed
             System.out.println("Enter target (specific user, $self, or $all):");
@@ -63,7 +64,7 @@ public class ServerReader extends CustomThread {
             String message = stdIn.nextLine();
             // [0] = user, [1] = message
             //String[] inputParts = input.split(":");
-            System.out.println("[ServerReader]input: " + target + ":" + message);
+            System.out.println("[logic.ServerReader]input: " + target + ":" + message);
 
             // Shut down the server if the server issues the "stop server" command
             if(target.trim().toLowerCase().equals("$all")) {
@@ -81,10 +82,10 @@ public class ServerReader extends CustomThread {
                 sendMessageToUser(target, message);
             }
             /*else { TODO: Lage liste med kommandoer
-                System.out.println("[ServerReader]unknown command");
+                System.out.println("[logic.ServerReader]unknown command");
             }*/
         }
 
-        System.out.println("[ServerReader]thread stopped.");
+        System.out.println("[logic.ServerReader]thread stopped.");
     }
 }

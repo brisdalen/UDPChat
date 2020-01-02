@@ -1,3 +1,5 @@
+package logic;
+
 public abstract class CustomThread extends Thread {
 
     protected boolean running;

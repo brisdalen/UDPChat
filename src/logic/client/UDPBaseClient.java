@@ -1,3 +1,5 @@
+package logic;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -25,7 +27,7 @@ public class UDPBaseClient {
     public UDPBaseClient() throws IOException {
         stdIn = new Scanner(System.in);
         socket = new DatagramSocket();
-        serverIP = InetAddress.getByName("10.0.0.111");
+        serverIP = InetAddress.getByName("192.168.10.170");
         clientConnection = new Connection(serverIP, 1234);
 
         requestBytes = "connect".getBytes();
@@ -35,7 +37,7 @@ public class UDPBaseClient {
         receivedPacket = Utility.createPacket(receivedBytes);
         socket.receive(receivedPacket);
         String receivedString = Utility.dataToString(receivedBytes);
-        System.out.println("[UDPBaseClient]From server: " + receivedString);
+        System.out.println("[logic.UDPBaseClient]From server: " + receivedString);
         id = receivedString;
 
         clientReader = new ClientReader(id, this, socket, stdIn, clientConnection);

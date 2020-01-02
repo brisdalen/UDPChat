@@ -1,3 +1,5 @@
+package logic;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -14,21 +16,21 @@ public class ClientListener extends CustomThread {
     }
 
     public synchronized void stopListener() {
-        System.out.println("[ClientListener]closing thread...");
+        System.out.println("[logic.ClientListener]closing thread...");
         super.stopThread();
     }
 
     @Override
     public void run() {
-        //System.out.println("[ClientListener]run() started");
+        //System.out.println("[logic.ClientListener]run() started");
         while (running) {
             try {
                 receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
                 clientSocket.receive(receivedPacket);
                 String message = Utility.dataToString(receivedBytes);
-                // Endre 2 strings, på samme måte som ServerReader
+                // Endre 2 strings, på samme måte som logic.ServerReader
                 String[] messageParts = message.split(":");
-                System.out.println("[ClientListener]From server: " + message);
+                System.out.println("[logic.ClientListener]From server: " + message);
 
                 if(messageParts.length > 1) {
                     if(!messageParts[0].equals("Client:" + getName())) {
@@ -44,6 +46,6 @@ public class ClientListener extends CustomThread {
             }
         }
 
-        System.out.println("[ClientListener]thread stopped.");
+        System.out.println("[logic.ClientListener]thread stopped.");
     }
 }
