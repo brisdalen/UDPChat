@@ -2,11 +2,14 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 //TODO: Legg til sjekk for time-outs
 //TODO: Akkurat nå venter server på et siste svar fra en client før den stenges; tenke på hvordan alt skal avsluttes
-public class UDPBaseServer extends Thread {
+public class UDPBaseServer extends CustomThread {
+
+    private ArrayList<CustomThread> threads;
 
     private Scanner stdIn;
 
@@ -15,12 +18,14 @@ public class UDPBaseServer extends Thread {
     private DatagramSocket serverSocket;
     private byte[] receivedBytes = new byte[65535];
     private DatagramPacket receivedPacket;
-    private boolean running = false;
 
-    ServerReader serverReader;
+    private GameUpdater gameUpdater;
+
+    private ServerReader serverReader;
     private HashMap<String, ClientHandler> clientListeners;
 
     public UDPBaseServer(int port) throws IOException {
+        threads = new ArrayList<>();
         stdIn = new Scanner(System.in);
         // Step 1 : Create a socket to listen at port 1234
         this.ip = InetAddress.getByName("0.0.0.0");
@@ -31,8 +36,22 @@ public class UDPBaseServer extends Thread {
         System.out.println("[UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
         System.out.println("[UDPBaseServer]Waiting for client connection...");
 
+        gameUpdater = new GameUpdater();
+        threads.add(gameUpdater);
+        gameUpdater.setPriority(9);
+        gameUpdater.start();
+
         serverReader = new ServerReader("Server", this, serverSocket, stdIn, clientListeners);
+        threads.add(serverReader);
         serverReader.start();
+
+    }
+
+    // Method that updates all clients
+    public void updateClients(HashMap<String, ClientHandler> clientListeners) {
+        for(String cl : clientListeners.keySet()) {
+            // Handle updates to every client. On it's own thread.
+        }
     }
 
     @Override
@@ -55,7 +74,7 @@ public class UDPBaseServer extends Thread {
                     while(clientListeners.containsKey(id)) {
                         id = Utility.getRandomString(16);
                     }
-
+                    // Store the handler with it's unique id in the hashmap
                     clientListeners.put(id, new ClientHandler(id, serverSocket, clientConnection));
                     //clientListeners.get(id).start();
                 }
@@ -79,7 +98,7 @@ public class UDPBaseServer extends Thread {
     }
 
     private void startServer() {
-        running = true;
+        System.out.println("[UDPBaseServer]Server starting...");
         this.start();
     }
 
@@ -87,12 +106,23 @@ public class UDPBaseServer extends Thread {
         System.out.println("[UDPBaseServer]stopping server...");
         serverReader.sendMessageToAllUsers("Server is closing...");
         running = false;
+
+        for(String client : clientListeners.keySet()) {
+            clientListeners.get(client).stopThread();
+        }
+
+        for(CustomThread ct : threads) {
+            ct.stopThread();
+        }
+
         serverReader.sendMessageToAllUsers("Server is closed.");
+        System.exit(0);
     }
 
     public static void main(String[] args) {
         try {
             UDPBaseServer server = new UDPBaseServer(1234);
+            server.setPriority(10);
             server.startServer();
         } catch (IOException e) {
             e.printStackTrace();

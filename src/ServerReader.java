@@ -4,16 +4,15 @@ import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class ServerReader extends Thread {
+public class ServerReader extends CustomThread {
 
-    Scanner stdIn;
-    UDPBaseServer server;
-    private boolean running;
-    DatagramSocket socket;
-    byte[] buffer = new byte[65535];
-    DatagramPacket sendPacket;
-    Connection parentConnection;
-    HashMap<String, ClientHandler> clientConnections;
+    private Scanner stdIn;
+    private UDPBaseServer server;
+    private DatagramSocket socket;
+    private byte[] buffer = new byte[65535];
+    private DatagramPacket sendPacket;
+    private Connection parentConnection;
+    private HashMap<String, ClientHandler> clientConnections;
 
     public ServerReader(String name, UDPBaseServer server, DatagramSocket socket, Scanner scanner, HashMap<String, ClientHandler> clientConnections) {
         super(name);
@@ -23,22 +22,23 @@ public class ServerReader extends Thread {
         this.clientConnections = clientConnections;
     }
 
-    @Override
-    public synchronized void start() {
-        running = true;
-        super.start();
-    }
-
     public synchronized void closeReader() {
         System.out.println("[ServerReader]closing thread...");
-        running = false;
+        super.stopThread();
     }
 
     public synchronized void sendMessageToUser(String user, String message) {
-        if(clientConnections.containsKey(user)) {
-            clientConnections.get(user).sendPacket(message);
+        if(!clientConnections.isEmpty()) {
+            if(clientConnections.containsKey(user) || user.equals("$all")) {
+                if(!user.equals("$all")) {
+                    // TODO: Exception in thread "Server" java.lang.NullPointerException
+                    clientConnections.get(user).sendPacket(message);
+                }
+            } else {
+                System.out.println("[ServerReader]user " + user + " not found");
+            }
         } else {
-            System.out.println("[ServerReader]user " + user + " not found");
+            System.out.println("[ServerReader]no users connected");
         }
     }
 

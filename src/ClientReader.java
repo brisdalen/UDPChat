@@ -3,12 +3,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Scanner;
 // TODO: packet identification
-public class ClientReader extends Thread {
+public class ClientReader extends CustomThread {
 
     private UDPBaseClient client;
     private DatagramSocket socket;
     private Scanner stdIn;
-    private boolean running;
     private byte[] buffer = new byte[65535];
     private DatagramPacket sendPacket;
     private Connection parentConnection;
@@ -22,25 +21,20 @@ public class ClientReader extends Thread {
         this.parentConnection = connection;
     }
 
-    @Override
-    public synchronized void start() {
-        running = true;
-        super.start();
-    }
-
     public synchronized void stopClient() {
         System.out.println("[ClientReader]stopping client...");
-        client.clientListener.closeListener();
-        running = false;
+        client.clientListener.stopListener();
+        super.stopThread();
     }
 
     @Override
     public void run() {
         //System.out.println("[ClientReader]run()");
         while(running) {
+
             String input = stdIn.nextLine();
             String message = getName() + ":" + input;
-            
+
             buffer = message.getBytes();
             sendPacket = Utility.createPacket(buffer, parentConnection);
             try {
@@ -49,7 +43,8 @@ public class ClientReader extends Thread {
                 if(input.trim().toLowerCase().equals("exit")) {
                     stopClient();
                 }
-            } catch (IOException e) {
+                sleep(600);
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         }

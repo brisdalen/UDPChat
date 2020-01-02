@@ -2,27 +2,20 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 //TODO: Akkurat nå venter listener på et siste svar fra server før den stenges; tenke på hvordan alt skal avsluttes
-public class ClientListener extends Thread {
+public class ClientListener extends CustomThread {
 
     private DatagramSocket clientSocket;
     private byte[] receivedBytes = new byte[65535];
     private DatagramPacket receivedPacket;
-    private boolean running;
 
     public ClientListener(String name, DatagramSocket clientSocket) {
         super(name);
         this.clientSocket = clientSocket;
     }
 
-    @Override
-    public synchronized void start() {
-        running = true;
-        super.start();
-    }
-
-    public synchronized void closeListener() {
+    public synchronized void stopListener() {
         System.out.println("[ClientListener]closing thread...");
-        running = false;
+        super.stopThread();
     }
 
     @Override

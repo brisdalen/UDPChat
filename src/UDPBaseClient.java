@@ -3,7 +3,7 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
 
-public class UDPBaseClient extends Thread {
+public class UDPBaseClient {
 
     Scanner stdIn;
     String id;
@@ -25,30 +25,27 @@ public class UDPBaseClient extends Thread {
     public UDPBaseClient() throws IOException {
         stdIn = new Scanner(System.in);
         socket = new DatagramSocket();
-        serverIP = InetAddress.getByName("192.168.10.170");
+        serverIP = InetAddress.getByName("10.0.0.111");
         clientConnection = new Connection(serverIP, 1234);
 
         requestBytes = "connect".getBytes();
         sendID = Utility.createPacket(requestBytes, serverIP, 1234);
-
         socket.send(sendID);
 
         receivedPacket = Utility.createPacket(receivedBytes);
         socket.receive(receivedPacket);
-
         String receivedString = Utility.dataToString(receivedBytes);
         System.out.println("[UDPBaseClient]From server: " + receivedString);
         id = receivedString;
 
-        clientListener = new ClientListener(id, socket);
-        clientListener.start();
-
         clientReader = new ClientReader(id, this, socket, stdIn, clientConnection);
         clientReader.start();
+        clientListener = new ClientListener(id, socket);
+        clientListener.start();
     }
 
     public static void main(String[] args) throws IOException {
-        UDPBaseClient client = new UDPBaseClient();
+        new UDPBaseClient();
     }
 
     private static byte[] intToByteArray(int i) {

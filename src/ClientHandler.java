@@ -3,7 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
-public class ClientHandler extends Thread {
+public class ClientHandler extends CustomThread {
 
     DatagramSocket socket;
     Connection userConnection;
@@ -29,14 +29,8 @@ public class ClientHandler extends Thread {
         }
     }
 
-    @Override
-    public synchronized void start() {
-        running = true;
-        super.start();
-    }
-
     public synchronized void stopThread() {
-        running = false;
+        super.stopThread();
         System.out.println(getName() + " stopped.");
     }
 
