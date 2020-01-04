@@ -1,4 +1,8 @@
-package logic;
+package logic.server;
+
+import logic.Connection;
+import logic.CustomThread;
+import logic.Utility;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -8,23 +12,28 @@ public class ClientHandler extends CustomThread {
 
     DatagramSocket socket;
     Connection userConnection;
-    private boolean running = false;
 
     public ClientHandler(String name, DatagramSocket socket, Connection connection) throws IOException {
         super(name);
         this.socket = socket;
         this.userConnection = connection;
-        System.out.println("[logic.ClientHandler]Client id: " + getName());
+        System.out.println("[logic.server.ClientHandler]Client id: " + getName());
         DatagramPacket sendVerification = Utility.createPacket(getName().getBytes(), connection);
         socket.send(sendVerification);
     }
 
+    public synchronized void sendMessageToUser(String message) {
+        if(userConnection != null) {
+            sendPacket(message);
+        }
+    }
+
     public void sendPacket(String message) {
-        //System.out.println("[logic.ClientHandler]sendPacket(): " + message);
+        //System.out.println("[logic.server.ClientHandler]sendPacket(): " + message);
         DatagramPacket sendMessage = Utility.createPacket(message.getBytes(), userConnection);
         try {
             socket.send(sendMessage);
-            System.out.println("[logic.ClientHandler]packet sent to ip: " + sendMessage.getAddress() + " port: " + sendMessage.getPort());
+            System.out.println("[logic.server.ClientHandler]packet sent to ip: " + sendMessage.getAddress() + " port: " + sendMessage.getPort());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -37,7 +46,7 @@ public class ClientHandler extends CustomThread {
 
     @Override
     public void run() {
-        System.out.println("[logic.ClientHandler]logic.ClientHandler thread started");
+        System.out.println("[logic.server.ClientHandler]logic.server.ClientHandler thread started");
         byte[] sendData = new byte[65535];
         DatagramPacket sendPacket = null;
 
@@ -47,7 +56,4 @@ public class ClientHandler extends CustomThread {
         }
     }
 
-    public DatagramPacket createPacket(byte[] message, Connection connection) {
-        return new DatagramPacket(message, message.length, connection.getIp(), connection.getPort());
-    }
 }
