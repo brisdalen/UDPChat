@@ -49,7 +49,7 @@ public class ClientListener extends CustomThread {
             }
         }
 
-        // TODO: denne tråden stoppes ikke ved exit
+        // TODO: VELDIG VIKTIG! denne tråden stoppes ikke ved exit
         System.out.println("[logic.client.ClientListener]thread stopped.");
     }
 }

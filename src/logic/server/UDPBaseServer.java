@@ -74,8 +74,8 @@ public class UDPBaseServer extends CustomThread {
                 receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
                 serverSocket.receive(receivedPacket);
                 String request = Utility.dataToString(receivedBytes);
-                String[] requestParts = request.split(":");
-                System.out.println("[logic.server.UDPBaseServer]From client: " + request);
+                String[] requestParts = request.split("\n");
+                //System.out.println("[logic.server.UDPBaseServer]Packet from client: " + request);
 
                 if(request.trim().toLowerCase().equals("connect")) {
                     Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
@@ -96,6 +96,15 @@ public class UDPBaseServer extends CustomThread {
                         String clientToPop = requestParts[0];
                         clientListeners.get(clientToPop).stopThread();
                         clientListeners.remove(clientToPop);
+                    } else {
+                        // Get the packet number
+                        int packetNumber = Integer.parseInt(requestParts[0].substring(4));
+                        System.out.println("[logic.server.UDPBaseServer]Packet number: " + packetNumber);
+                        String message = requestParts[1];
+                        System.out.println("[logic.server.UDPBaseServer]Message from client: " + message);
+                        // TODO: Array med hvilke packets som har kommet igjennom?
+                        boolean acknowledged = requestParts[2].trim().toLowerCase().equals("acknowledged");
+                        System.out.println("[logic.server.UDPBaseServer]Acknowledged: " + acknowledged);
                     }
                 }
 

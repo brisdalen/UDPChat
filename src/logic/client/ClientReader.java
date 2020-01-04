@@ -51,8 +51,10 @@ public class ClientReader extends CustomThread {
             try {
                 byteStream.write(sender);
                 byteStream.write(packetID);
-                byteStream.write("\n".getBytes());
+                byteStream.write(10);
                 byteStream.write(message);
+                byteStream.write(10);
+                byteStream.write("Acknowledged".getBytes());
                 buffer = byteStream.toByteArray();
                 byteStream.reset();
             } catch (IOException e) {
