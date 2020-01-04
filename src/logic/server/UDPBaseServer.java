@@ -44,11 +44,9 @@ public class UDPBaseServer extends CustomThread {
         gameUpdater = new GameUpdater();
         threads.add(gameUpdater);
         gameUpdater.setPriority(9);
-        //gameUpdater.start();
 
         serverReader = new ServerReader("Server", this, serverSocket, stdIn, clientListeners);
         threads.add(serverReader);
-        //serverReader.start();
 
     }
 

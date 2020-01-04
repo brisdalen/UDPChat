@@ -14,7 +14,7 @@ public class GameUpdater extends CustomThread {
             // Updaten forskyves med 1 millisekund ved hver iterasjon
             if(currentEpoch - lastUpdate >= 600) {
                 lastUpdate = System.currentTimeMillis();
-                System.out.println("[logic.server.GameUpdater]Update @" + lastUpdate);
+                //System.out.println("[logic.server.GameUpdater]Update @" + lastUpdate);
             }
         }
     }

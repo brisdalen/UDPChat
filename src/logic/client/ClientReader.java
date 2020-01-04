@@ -4,6 +4,8 @@ import logic.Connection;
 import logic.CustomThread;
 import logic.Utility;
 
+import javax.rmi.CORBA.Util;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,7 +19,8 @@ public class ClientReader extends CustomThread {
     private byte[] buffer = new byte[65535];
     private DatagramPacket sendPacket;
     private Connection parentConnection;
-    private int packetID = 0;
+    private int packetIDRaw = 0;
+    private ByteArrayOutputStream byteStream;
 
     public ClientReader(String name, UDPBaseClient client, DatagramSocket socket, Scanner scanner, Connection connection) {
         super(name);
@@ -25,6 +28,7 @@ public class ClientReader extends CustomThread {
         this.socket = socket;
         this.stdIn = scanner;
         this.parentConnection = connection;
+        byteStream = new ByteArrayOutputStream();
     }
 
     public synchronized void stopClient() {
@@ -39,9 +43,28 @@ public class ClientReader extends CustomThread {
         while(running) {
 
             String input = stdIn.nextLine();
-            String message = getName() + ":" + input;
+            byte[] packetID = String.valueOf(packetIDRaw++).getBytes();
+            //byte[] packetID = Utility.intToByteArray(packetIDRaw++);
+            byte[] sender = getName().getBytes();
+            byte[] message = input.getBytes();
 
-            buffer = message.getBytes();
+            try {
+                byteStream.write(sender);
+                byteStream.write(packetID);
+                byteStream.write("\n".getBytes());
+                byteStream.write(message);
+                buffer = byteStream.toByteArray();
+                byteStream.reset();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("TEST--------");
+            for(byte b : buffer) {
+                System.out.print(b + " ");
+            }
+            System.out.println("\n" + new String(buffer));
+
             sendPacket = Utility.createPacket(buffer, parentConnection);
             try {
                 socket.send(sendPacket);

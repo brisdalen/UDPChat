@@ -12,7 +12,6 @@ public class ClientHandler extends CustomThread {
 
     DatagramSocket socket;
     Connection userConnection;
-    private boolean running = false;
 
     public ClientHandler(String name, DatagramSocket socket, Connection connection) throws IOException {
         super(name);
@@ -21,6 +20,12 @@ public class ClientHandler extends CustomThread {
         System.out.println("[logic.server.ClientHandler]Client id: " + getName());
         DatagramPacket sendVerification = Utility.createPacket(getName().getBytes(), connection);
         socket.send(sendVerification);
+    }
+
+    public synchronized void sendMessageToUser(String message) {
+        if(userConnection != null) {
+            sendPacket(message);
+        }
     }
 
     public void sendPacket(String message) {
@@ -51,7 +56,4 @@ public class ClientHandler extends CustomThread {
         }
     }
 
-    public DatagramPacket createPacket(byte[] message, Connection connection) {
-        return new DatagramPacket(message, message.length, connection.getIp(), connection.getPort());
-    }
 }

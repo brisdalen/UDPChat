@@ -30,7 +30,7 @@ public class UDPBaseClient {
     public UDPBaseClient() throws IOException {
         stdIn = new Scanner(System.in);
         socket = new DatagramSocket();
-        serverIP = InetAddress.getByName("192.168.10.170");
+        serverIP = InetAddress.getByName("10.0.0.111");
         clientConnection = new Connection(serverIP, 1234);
 
         requestBytes = "connect".getBytes();
@@ -51,10 +51,6 @@ public class UDPBaseClient {
 
     public static void main(String[] args) throws IOException {
         new UDPBaseClient();
-    }
-
-    private static byte[] intToByteArray(int i) {
-        return ByteBuffer.allocate(4).putInt(i).array();
     }
 
 }
