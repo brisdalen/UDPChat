@@ -51,6 +51,7 @@ public class ClientReader extends CustomThread {
             try {
                 byteStream.write(sender);
                 byteStream.write(packetID);
+                // 10 er byte-koden for "new line", samme som å skrive "byteStream.write("\n".getBytes())"
                 byteStream.write(10);
                 byteStream.write(message);
                 byteStream.write(10);
