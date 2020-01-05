@@ -93,24 +93,29 @@ public class UDPBaseServer extends CustomThread {
                 if(requestParts.length > 1) {
                     // Stop and remove the handler responsible for the client exiting
                     if (requestParts[1].trim().toLowerCase().equals("exit")) {
-                        String clientToPop = requestParts[0];
+                        // Get only the user ID
+                        String clientToPop = requestParts[0].substring(0, 4);
                         clientListeners.get(clientToPop).stopThread();
                         clientListeners.remove(clientToPop);
                     } else {
+                        // Get the clientID
+                        String clientID = requestParts[0].substring(0, 4);
                         // Get the packet number
                         int packetNumber = Integer.parseInt(requestParts[0].substring(4));
-                        System.out.println("[logic.server.UDPBaseServer]Packet number: " + packetNumber);
+                        System.out.println("[logic.server.UDPBaseServer]Client: " + clientID + " Packet number: " + packetNumber);
                         String message = requestParts[1];
                         System.out.println("[logic.server.UDPBaseServer]Message from client: " + message);
                         // TODO: Array med hvilke packets som har kommet igjennom?
                         boolean acknowledged = requestParts[2].trim().toLowerCase().equals("acknowledged");
-                        System.out.println("[logic.server.UDPBaseServer]Acknowledged: " + acknowledged);
+                        System.out.println("[logic.server.UDPBaseServer]Acknowledged: " + acknowledged + "\n");
                     }
                 }
 
                 receivedBytes = new byte[65535];
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("[UDPBaseServer]restart");
+                this.startServer();
             }
         }
 
@@ -121,7 +126,7 @@ public class UDPBaseServer extends CustomThread {
         System.out.println("[logic.server.UDPBaseServer]Server starting...");
         gameUpdater.start();
         serverReader.start();
-        this.start();
+        super.start();
         System.out.println("[logic.server.UDPBaseServer]Server started.");
     }
 

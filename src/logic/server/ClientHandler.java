@@ -13,13 +13,15 @@ public class ClientHandler extends CustomThread {
     DatagramSocket socket;
     Connection userConnection;
 
-    public ClientHandler(String name, DatagramSocket socket, Connection connection) throws IOException {
-        super(name);
+    public ClientHandler(String id, DatagramSocket socket, Connection connection) throws IOException {
+        super(id);
         this.socket = socket;
         this.userConnection = connection;
-        System.out.println("[logic.server.ClientHandler]Client id: " + getName());
+        System.out.println("[logic.server.ClientHandler]new Client: " + getName() + "\n");
         DatagramPacket sendVerification = Utility.createPacket(getName().getBytes(), connection);
         socket.send(sendVerification);
+        //TODO: timeout!
+        int lastPacketAcknowledged;
     }
 
     public synchronized void sendMessageToUser(String message) {

@@ -10,19 +10,19 @@ import java.util.Scanner;
 
 public class UDPBaseClient {
 
-    Scanner stdIn;
-    String id;
+    private Scanner stdIn;
+    private String id;
 
-    DatagramSocket socket;
-    InetAddress serverIP;
-    Connection clientConnection;
+    private DatagramSocket socket;
+    private InetAddress serverIP;
+    private Connection clientConnection;
 
-    byte[] requestBytes = new byte[65535];
+    private byte[] requestBytes;
     // Packet for requesting ID
-    DatagramPacket sendID;
-    DatagramPacket receivedPacket;
+    private DatagramPacket sendID;
+    private DatagramPacket receivedPacket;
 
-    byte[] receivedBytes = new byte[65535];
+    private byte[] receivedBytes = new byte[65535];
 
     protected ClientListener clientListener;
     private ClientReader clientReader;
@@ -30,7 +30,7 @@ public class UDPBaseClient {
     public UDPBaseClient() throws IOException {
         stdIn = new Scanner(System.in);
         socket = new DatagramSocket();
-        serverIP = InetAddress.getByName("10.0.0.111");
+        serverIP = InetAddress.getByName("192.168.11.171");
         clientConnection = new Connection(serverIP, 1234);
 
         requestBytes = "connect".getBytes();

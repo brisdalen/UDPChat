@@ -62,12 +62,6 @@ public class ClientReader extends CustomThread {
                 e.printStackTrace();
             }
 
-            System.out.println("TEST--------");
-            for(byte b : buffer) {
-                System.out.print(b + " ");
-            }
-            System.out.println("\n" + new String(buffer));
-
             sendPacket = Utility.createPacket(buffer, parentConnection);
             try {
                 socket.send(sendPacket);
