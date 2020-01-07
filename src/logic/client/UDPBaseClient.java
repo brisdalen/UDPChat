@@ -30,7 +30,7 @@ public class UDPBaseClient {
     public UDPBaseClient() throws IOException {
         stdIn = new Scanner(System.in);
         socket = new DatagramSocket();
-        serverIP = InetAddress.getByName("192.168.11.171");
+        serverIP = InetAddress.getByName("142.93.135.21");
         clientConnection = new Connection(serverIP, 1234);
 
         requestBytes = "connect".getBytes();

@@ -63,13 +63,24 @@ public class ServerUI extends JFrame {
         });
         this.getRootPane().setDefaultButton(sendMessage);
 
+        String[] temp = new String[100];
+        for(int i = 0; i < 100; i++) {
+            temp[i] = "" + i;
+        }
+        // TODO: Liste over alle clients som er tilkoblet
+        JList list = new JList();
+        JScrollPane scrollPane = new JScrollPane(list);
+        scrollPane.setPreferredSize(new Dimension(120, 0));
+
         mainPanel.add(targetField, BorderLayout.NORTH);
+        mainPanel.add(scrollPane, BorderLayout.EAST);
         mainPanel.add(messageField, BorderLayout.CENTER);
         mainPanel.add(sendMessage, BorderLayout.SOUTH);
 
         this.add(mainPanel);
         this.setLocationRelativeTo(null);
         this.setVisible(true);
+        this.requestFocus();
     }
 
 }
