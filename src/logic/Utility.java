@@ -2,8 +2,28 @@ package logic;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 
 public class Utility {
+
+    public static byte[] intToByteArray(int i) {
+        return ByteBuffer.allocate(4).putInt(i).array();
+    }
+
+    public static byte[] combineByteArrays(byte[][] arrays) {
+        int size = 0;
+        for(byte[] bytes : arrays) {
+            size += bytes.length;
+        }
+
+        ByteBuffer bb = ByteBuffer.allocate(size);
+
+        for(byte[] bytes : arrays) {
+            bb.put(bytes);
+        }
+
+        return bb.array();
+    }
 
     public static String getRandomString(int i) {
         // chose a Character random from this String

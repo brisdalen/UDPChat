@@ -1,4 +1,8 @@
-package logic;
+package logic.server;
+
+import logic.Connection;
+import logic.CustomThread;
+import logic.Utility;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -34,18 +38,24 @@ public class UDPBaseServer extends CustomThread {
         this.port = port;
         serverSocket = new DatagramSocket(port, ip);
         clientListeners = new HashMap<>();
-        System.out.println("[logic.UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
-        System.out.println("[logic.UDPBaseServer]Waiting for client connection...");
+        System.out.println("[logic.server.UDPBaseServer]Server created at port: " + port + " with ip address: " + ip);
+        System.out.println("[logic.server.UDPBaseServer]Waiting for client connection...");
 
         gameUpdater = new GameUpdater();
         threads.add(gameUpdater);
         gameUpdater.setPriority(9);
-        gameUpdater.start();
 
         serverReader = new ServerReader("Server", this, serverSocket, stdIn, clientListeners);
         threads.add(serverReader);
-        serverReader.start();
 
+    }
+
+    public synchronized void sendMessageToUser(String user, String message) {
+        serverReader.sendMessageToUser(user, message);
+    }
+
+    public synchronized void sendMessageToAllUsers(String message) {
+        serverReader.sendMessageToAllUsers(message);
     }
 
     // Method that updates all clients
@@ -57,15 +67,15 @@ public class UDPBaseServer extends CustomThread {
 
     @Override
     public void run() {
-        //System.out.println("[logic.UDPBaseServer]run() started");
+        //System.out.println("[logic.server.UDPBaseServer]run() started");
         while (running) {
             try {
                 // The Server's "receiver"
                 receivedPacket = new DatagramPacket(receivedBytes, receivedBytes.length);
                 serverSocket.receive(receivedPacket);
                 String request = Utility.dataToString(receivedBytes);
-                String[] requestParts = request.split(":");
-                System.out.println("[logic.UDPBaseServer]From client: " + request);
+                String[] requestParts = request.split("\n");
+                //System.out.println("[logic.server.UDPBaseServer]Packet from client: " + request);
 
                 if(request.trim().toLowerCase().equals("connect")) {
                     Connection clientConnection = new Connection(receivedPacket.getAddress(), receivedPacket.getPort());
@@ -83,28 +93,45 @@ public class UDPBaseServer extends CustomThread {
                 if(requestParts.length > 1) {
                     // Stop and remove the handler responsible for the client exiting
                     if (requestParts[1].trim().toLowerCase().equals("exit")) {
-                        String clientToPop = requestParts[0];
+                        // Get only the user ID
+                        String clientToPop = requestParts[0].substring(0, 4);
                         clientListeners.get(clientToPop).stopThread();
                         clientListeners.remove(clientToPop);
+                    } else {
+                        // Get the clientID
+                        String clientID = requestParts[0].substring(0, 4);
+                        // Get the packet number
+                        int packetNumber = Integer.parseInt(requestParts[0].substring(4));
+                        System.out.println("[logic.server.UDPBaseServer]Client: " + clientID + " Packet number: " + packetNumber);
+                        String message = requestParts[1];
+                        System.out.println("[logic.server.UDPBaseServer]Message from client: " + message);
+                        // TODO: Array med hvilke packets som har kommet igjennom?
+                        boolean acknowledged = requestParts[2].trim().toLowerCase().equals("acknowledged");
+                        System.out.println("[logic.server.UDPBaseServer]Acknowledged: " + acknowledged + "\n");
                     }
                 }
 
                 receivedBytes = new byte[65535];
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("[UDPBaseServer]restart");
+                this.startServer();
             }
         }
 
-        System.out.println("[logic.UDPBaseServer]server stopped.");
+        System.out.println("[logic.server.UDPBaseServer]server stopped.");
     }
 
-    private void startServer() {
-        System.out.println("[logic.UDPBaseServer]Server starting...");
-        this.start();
+    public void startServer() {
+        System.out.println("[logic.server.UDPBaseServer]Server starting...");
+        gameUpdater.start();
+        serverReader.start();
+        super.start();
+        System.out.println("[logic.server.UDPBaseServer]Server started.");
     }
 
-    protected void stopServer() {
-        System.out.println("[logic.UDPBaseServer]stopping server...");
+    public void stopServer() {
+        System.out.println("[logic.server.UDPBaseServer]stopping server...");
         serverReader.sendMessageToAllUsers("Server is closing...");
         running = false;
 
@@ -117,7 +144,7 @@ public class UDPBaseServer extends CustomThread {
         }
 
         serverReader.sendMessageToAllUsers("Server is closed.");
-        System.exit(0);
+        System.out.println("[logic.server.UDPBaseServer]server stopped.");
     }
 
     public static void main(String[] args) {

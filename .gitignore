@@ -7,8 +7,6 @@
 
 .idea/modules.xml
 
-*.class
-
 out/production/UDPChat/META-INF/UDPChat.kotlin_module
 
 .idea/uiDesigner.xml
