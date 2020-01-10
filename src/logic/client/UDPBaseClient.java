@@ -5,7 +5,6 @@ import logic.Utility;
 
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.util.Scanner;
 
 public class UDPBaseClient {

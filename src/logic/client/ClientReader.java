@@ -4,11 +4,11 @@ import logic.Connection;
 import logic.CustomThread;
 import logic.Utility;
 
-import javax.rmi.CORBA.Util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.BitSet;
 import java.util.Scanner;
 // TODO: packet identification
 public class ClientReader extends CustomThread {
@@ -40,18 +40,38 @@ public class ClientReader extends CustomThread {
     @Override
     public void run() {
         //System.out.println("[logic.client.ClientReader]run()");
+        /*
+
+        "
+        Each time we send a packet we increase the local sequence number (packetIDRaw++)
+
+        When we receieve a packet, we check the sequence number of the packet against the sequence number
+        of the most recently received packet, called the remote sequence number. If the packet is more recent,
+        we update the remote sequence to be equal to the sequence number of the packet.
+
+        When we compose packet headers, the local sequence becomes the sequence number of the packet,
+        and the remote sequence becomes the ack.
+        "
+
+        1. Construct packet from input, packetID and message.
+        2. Send the packet x number of times. If you lose many, increase the amount sent. If all comes through, reduce to normal.
+        3. (On server) Process the packet. Disregard any old packets. Send an array of acknowledged packets?
+
+         */
         while(running) {
 
             String input = stdIn.nextLine();
             byte[] packetID = String.valueOf(packetIDRaw++).getBytes();
-            //byte[] packetID = Utility.intToByteArray(packetIDRaw++);
             byte[] sender = getName().getBytes();
             byte[] message = input.getBytes();
+            BitSet ack = new BitSet(32);
 
             try {
                 byteStream.write(sender);
                 byteStream.write(packetID);
                 // 10 er byte-koden for "new line", samme som å skrive "byteStream.write("\n".getBytes())"
+                byteStream.write(10);
+                byteStream.write(ack.toByteArray());
                 byteStream.write(10);
                 byteStream.write(message);
                 byteStream.write(10);
