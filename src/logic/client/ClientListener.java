@@ -13,7 +13,7 @@ public class ClientListener extends CustomThread {
     private byte[] receivedBytes = new byte[65535];
     private DatagramPacket receivedPacket;
 
-    public ClientListener(String name, DatagramSocket clientSocket) {
+    public ClientListener(UDPBaseClient client, String name, DatagramSocket clientSocket) {
         super(name);
         this.clientSocket = clientSocket;
     }

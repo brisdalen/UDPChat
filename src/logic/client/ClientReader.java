@@ -21,6 +21,8 @@ public class ClientReader extends CustomThread {
     private Connection parentConnection;
     private int packetIDRaw = 0;
     private ByteArrayOutputStream byteStream;
+    private int ackID;
+    private BitSet ackBitfield;
 
     public ClientReader(String name, UDPBaseClient client, DatagramSocket socket, Scanner scanner, Connection connection) {
         super(name);
@@ -29,6 +31,8 @@ public class ClientReader extends CustomThread {
         this.stdIn = scanner;
         this.parentConnection = connection;
         byteStream = new ByteArrayOutputStream();
+        ackID = 0;
+        ackBitfield = new BitSet(32);
     }
 
     public synchronized void stopClient() {
@@ -45,7 +49,7 @@ public class ClientReader extends CustomThread {
         "
         Each time we send a packet we increase the local sequence number (packetIDRaw++)
 
-        When we receieve a packet, we check the sequence number of the packet against the sequence number
+        When we receive a packet, we check the sequence number of the packet against the sequence number
         of the most recently received packet, called the remote sequence number. If the packet is more recent,
         we update the remote sequence to be equal to the sequence number of the packet.
 
@@ -61,20 +65,22 @@ public class ClientReader extends CustomThread {
         while(running) {
 
             String input = stdIn.nextLine();
-            byte[] packetID = String.valueOf(packetIDRaw++).getBytes();
             byte[] sender = getName().getBytes();
+            byte[] packetID = String.valueOf(packetIDRaw++).getBytes();
+            byte[] ack = String.valueOf(ackID).getBytes();
             byte[] message = input.getBytes();
-            BitSet ack = new BitSet(32);
+
+            // 10 er byte-koden for "new line", samme som å skrive "byteStream.write("\n".getBytes())"
+            final int NEW_LINE = 10;
 
             try {
                 byteStream.write(sender);
                 byteStream.write(packetID);
-                // 10 er byte-koden for "new line", samme som å skrive "byteStream.write("\n".getBytes())"
-                byteStream.write(10);
-                byteStream.write(ack.toByteArray());
-                byteStream.write(10);
+                byteStream.write(NEW_LINE);
+                byteStream.write(ack);
+                byteStream.write(NEW_LINE);
                 byteStream.write(message);
-                byteStream.write(10);
+                byteStream.write(NEW_LINE);
                 byteStream.write("Acknowledged".getBytes());
                 buffer = byteStream.toByteArray();
                 byteStream.reset();
@@ -96,6 +102,10 @@ public class ClientReader extends CustomThread {
         }
 
         System.out.println("[logic.client.ClientReader]client stopped.");
+    }
+
+    public void setAck(int remoteSequenceNumber) {
+        this.ackID = remoteSequenceNumber;
     }
 
 }

@@ -29,7 +29,7 @@ public class UDPBaseClient {
     public UDPBaseClient() throws IOException {
         stdIn = new Scanner(System.in);
         socket = new DatagramSocket();
-        serverIP = InetAddress.getByName("142.93.135.21");
+        serverIP = InetAddress.getByName("192.168.11.66");
         clientConnection = new Connection(serverIP, 1234);
 
         requestBytes = "connect".getBytes();
@@ -44,8 +44,12 @@ public class UDPBaseClient {
 
         clientReader = new ClientReader(id, this, socket, stdIn, clientConnection);
         clientReader.start();
-        clientListener = new ClientListener(id, socket);
+        clientListener = new ClientListener(this, id, socket);
         clientListener.start();
+    }
+
+    protected synchronized void updateAck(int remoteSequenceNumber) {
+        clientReader.setAck(remoteSequenceNumber);
     }
 
     public static void main(String[] args) throws IOException {
